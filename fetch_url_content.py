@@ -80,9 +80,6 @@ def analyze_urls_in_dataset():
     df = pd.read_csv('OnlineNewsPopularity.csv')
     df.columns = df.columns.str.strip()
     
-    # Create is_popular column
-    df['is_popular'] = (df['shares'] >= 1400).astype(int)
-    
     print(f"Total articles: {len(df)}")
     
     # Sample a few URLs for analysis (to avoid overwhelming the servers)
@@ -164,12 +161,9 @@ def create_detailed_documentation():
     doc_content.append("")
     
     doc_content.append("2.3 Feature Engineering:")
-    doc_content.append("   - Created binary classification target 'is_popular'")
-    doc_content.append("   - Threshold: 1,400 shares (based on original research)")
-    popular_count = df['is_popular'].sum()
-    unpopular_count = len(df) - popular_count
-    doc_content.append(f"   - Popular articles (≥1,400): {popular_count:,} ({popular_count/len(df)*100:.1f}%)")
-    doc_content.append(f"   - Unpopular articles (<1,400): {unpopular_count:,} ({unpopular_count/len(df)*100:.1f}%)")
+    doc_content.append("   - Note: Binary classification target 'is_popular' not created automatically")
+    doc_content.append("   - User can create manually if needed: df['is_popular'] = (df['shares'] >= 1400).astype(int)")
+    doc_content.append("   - Threshold suggestion: 1,400 shares (based on original research)")
     doc_content.append("")
     
     # 3. Feature Analysis
@@ -238,11 +232,9 @@ def create_detailed_documentation():
         channel_name = col.replace('data_channel_is_', '').title()
         channel_articles = df[df[col] == 1]
         avg_shares = channel_articles['shares'].mean()
-        popular_pct = (channel_articles['is_popular'].sum() / len(channel_articles)) * 100
         doc_content.append(f"   {channel_name}:")
         doc_content.append(f"     - Articles: {len(channel_articles):,}")
         doc_content.append(f"     - Average shares: {avg_shares:.0f}")
-        doc_content.append(f"     - Popular articles: {popular_pct:.1f}%")
     doc_content.append("")
     
     # 6. Machine Learning Readiness
@@ -303,10 +295,9 @@ def create_detailed_documentation():
     doc_content.append("-" * 40)
     doc_content.append("The Online News Popularity dataset has been successfully processed and analyzed.")
     doc_content.append("Key findings include:")
-    doc_content.append("   - Social Media articles are most likely to be popular")
-    doc_content.append("   - Saturday publications perform best")
     doc_content.append("   - Keyword performance metrics are strong predictors")
     doc_content.append("   - Content length has minimal correlation with popularity")
+    doc_content.append("   - Sentiment features show low correlation with shares")
     doc_content.append("")
     doc_content.append("The dataset is ready for machine learning model development.")
     doc_content.append("")

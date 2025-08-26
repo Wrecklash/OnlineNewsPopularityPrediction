@@ -54,14 +54,10 @@ print("="*50)
 shares_stats = df['shares'].describe()
 print(shares_stats)
 
-# Create binary classification based on threshold of 1400 shares
-df['is_popular'] = (df['shares'] >= 1400).astype(int)
-popular_count = df['is_popular'].sum()
-unpopular_count = len(df) - popular_count
-
-print(f"\nBinary Classification (threshold: 1400 shares):")
-print(f"Popular articles (>= 1400 shares): {popular_count:,} ({popular_count/len(df)*100:.1f}%)")
-print(f"Unpopular articles (< 1400 shares): {unpopular_count:,} ({unpopular_count/len(df)*100:.1f}%)")
+# Note: Binary classification target not created automatically
+# User can create 'is_popular' column manually if needed
+print(f"\nNote: Binary classification target not created automatically.")
+print(f"To create 'is_popular' column, use: df['is_popular'] = (df['shares'] >= 1400).astype(int)")
 
 print("\n" + "="*50)
 print("DATA CHANNEL DISTRIBUTION")
@@ -94,7 +90,7 @@ print(correlations.head(11))  # 11 to include shares itself
 print("\nBottom 10 features least correlated with shares:")
 print(correlations.tail(10))
 
-# Save the processed dataframe
+# Save the processed dataframe (without is_popular column)
 print("\n" + "="*50)
 print("SAVING PROCESSED DATA")
 print("="*50)
@@ -108,6 +104,6 @@ print(f"• Dataset contains {len(df):,} news articles from Mashable")
 print(f"• {len(df.columns)} features including the target variable 'shares'")
 print(f"• Articles published between {df['timedelta'].min():.0f} and {df['timedelta'].max():.0f} days before dataset acquisition")
 print(f"• Target variable 'shares' ranges from {df['shares'].min():.0f} to {df['shares'].max():.0f}")
-print(f"• Using threshold of 1400 shares: {popular_count:,} popular vs {unpopular_count:,} unpopular articles")
 print("• No missing values in the dataset")
 print("• Ready for machine learning analysis!")
+print("• Note: Binary classification target not created - user can add manually if needed")

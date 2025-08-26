@@ -20,7 +20,7 @@ axes[0, 0].hist(df['shares'], bins=50, alpha=0.7, color='skyblue', edgecolor='bl
 axes[0, 0].set_title('Distribution of Shares')
 axes[0, 0].set_xlabel('Number of Shares')
 axes[0, 0].set_ylabel('Frequency')
-axes[0, 0].axvline(x=1400, color='red', linestyle='--', label='Popularity Threshold')
+axes[0, 0].axvline(x=1400, color='red', linestyle='--', label='Suggested Threshold (1400)')
 axes[0, 0].legend()
 
 # 2. Log distribution of shares (better visualization)
@@ -28,7 +28,7 @@ axes[0, 1].hist(np.log1p(df['shares']), bins=50, alpha=0.7, color='lightgreen', 
 axes[0, 1].set_title('Distribution of Log(Shares + 1)')
 axes[0, 1].set_xlabel('Log(Number of Shares + 1)')
 axes[0, 1].set_ylabel('Frequency')
-axes[0, 1].axvline(x=np.log1p(1400), color='red', linestyle='--', label='Popularity Threshold')
+axes[0, 1].axvline(x=np.log1p(1400), color='red', linestyle='--', label='Suggested Threshold')
 axes[0, 1].legend()
 
 # 3. Data channel distribution
@@ -50,11 +50,23 @@ axes[1, 0].set_xlabel('Day of Week')
 axes[1, 0].set_ylabel('Number of Articles')
 axes[1, 0].tick_params(axis='x', rotation=45)
 
-# 5. Popular vs Unpopular distribution
-popular_counts = df['is_popular'].value_counts()
-axes[1, 1].pie(popular_counts.values, labels=['Unpopular (<1400)', 'Popular (≥1400)'], 
-               autopct='%1.1f%%', startangle=90, colors=['lightcoral', 'lightblue'])
-axes[1, 1].set_title('Popular vs Unpopular Articles')
+# 5. Shares distribution by popularity threshold (if is_popular exists)
+if 'is_popular' in df.columns:
+    popular_counts = df['is_popular'].value_counts()
+    axes[1, 1].pie(popular_counts.values, labels=['Unpopular (<1400)', 'Popular (≥1400)'], 
+                   autopct='%1.1f%%', startangle=90, colors=['lightcoral', 'lightblue'])
+    axes[1, 1].set_title('Popular vs Unpopular Articles')
+else:
+    # Show shares distribution by quartiles instead
+    quartiles = df['shares'].quantile([0.25, 0.5, 0.75])
+    axes[1, 1].hist(df['shares'], bins=30, alpha=0.7, color='lightblue', edgecolor='black')
+    axes[1, 1].axvline(x=quartiles[0.25], color='orange', linestyle='--', label='Q1')
+    axes[1, 1].axvline(x=quartiles[0.5], color='red', linestyle='--', label='Median')
+    axes[1, 1].axvline(x=quartiles[0.75], color='green', linestyle='--', label='Q3')
+    axes[1, 1].set_title('Shares Distribution with Quartiles')
+    axes[1, 1].set_xlabel('Number of Shares')
+    axes[1, 1].set_ylabel('Frequency')
+    axes[1, 1].legend()
 
 # 6. Box plot of shares by channel
 channel_data = []
@@ -104,19 +116,21 @@ for col in channel_columns:
     channel_name = col.replace('data_channel_is_', '').title()
     channel_articles = df[df[col] == 1]
     avg_shares = channel_articles['shares'].mean()
-    popular_pct = (channel_articles['is_popular'].sum() / len(channel_articles)) * 100
     print(f"{channel_name}:")
     print(f"  Average shares: {avg_shares:.0f}")
-    print(f"  Popular articles: {popular_pct:.1f}%")
+    if 'is_popular' in df.columns:
+        popular_pct = (channel_articles['is_popular'].sum() / len(channel_articles)) * 100
+        print(f"  Popular articles: {popular_pct:.1f}%")
 
 # Popularity by weekday
 print("\nPOPULARITY BY WEEKDAY:")
 for i, col in enumerate(weekday_columns):
     weekday_articles = df[df[col] == 1]
     avg_shares = weekday_articles['shares'].mean()
-    popular_pct = (weekday_articles['is_popular'].sum() / len(weekday_articles)) * 100
     print(f"{weekday_names[i]}:")
     print(f"  Average shares: {avg_shares:.0f}")
-    print(f"  Popular articles: {popular_pct:.1f}%")
+    if 'is_popular' in df.columns:
+        popular_pct = (weekday_articles['is_popular'].sum() / len(weekday_articles)) * 100
+        print(f"  Popular articles: {popular_pct:.1f}%")
 
 print(f"\nAnalysis complete!")
